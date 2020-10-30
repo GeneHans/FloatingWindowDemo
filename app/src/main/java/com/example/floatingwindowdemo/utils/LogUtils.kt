@@ -1,4 +1,4 @@
-package com.example.floatingwindowdemo
+package com.example.floatingwindowdemo.utils
 
 import android.util.Log
 

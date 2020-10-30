@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
-import com.example.floatingwindowdemo.LogUtils
+import com.example.floatingwindowdemo.utils.LogUtils
 
 class FloatTextView : AppCompatTextView {
     constructor(context: Context) : super(context) {}

@@ -1,4 +1,4 @@
-package com.example.floatingwindowdemo
+package com.example.floatingwindowdemo.util
 
 import android.app.Activity
 import android.content.Context

@@ -9,11 +9,13 @@ import android.view.animation.BounceInterpolator
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
+import com.example.floatingwindowdemo.FloatWindowApplication
 import com.example.floatingwindowdemo.util.DeviceUtils
 import com.example.floatingwindowdemo.R
+import com.example.floatingwindowdemo.util.LogUtils
 
 
-class FloatWindow : LinearLayout {
+class FloatWindow : LinearLayout,View.OnClickListener {
     constructor(context: Context) : super(context) {}
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {}
     constructor(context: Context, attributeSet: AttributeSet, defStyleAttr: Int) :
@@ -36,13 +38,19 @@ class FloatWindow : LinearLayout {
         View.inflate(context, R.layout.float_window_layout, this)
         image = findViewById(R.id.img_float_window)
         text = findViewById(R.id.text_float_window)
+        setOnClickListener(this)
         //减去虚拟按键的高度
-        screenHeight -= DeviceUtils.instance.getVirtualBarHeight(context)
+//        screenHeight -= DeviceUtils.instance.getVirtualBarHeight(context)
     }
 
     //设置是否可以依附
     fun setAttachAble(attach: Boolean) {
         needAttach = attach
+    }
+
+    override fun onClick(v: View?) {
+        LogUtils.instance.getLogPrint("点击了可拖动控件")
+        FloatWindowApplication.startTargetActivity()
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
@@ -81,6 +89,7 @@ class FloatWindow : LinearLayout {
                 lastY = ev.rawY.toInt()
             }
             MotionEvent.ACTION_UP -> {
+                performClick()
                 if (!needAttach) {
                     var lp = LinearLayout.LayoutParams(width, height)
                     lp.setMargins(left, top, right, bottom)

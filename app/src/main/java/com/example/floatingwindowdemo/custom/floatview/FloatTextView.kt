@@ -4,14 +4,16 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.MotionEvent
+import android.view.View
 import android.view.animation.BounceInterpolator
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
+import com.example.floatingwindowdemo.FloatWindowApplication
 import com.example.floatingwindowdemo.util.DeviceUtils
 import com.example.floatingwindowdemo.util.LogUtils
 
 
-class FloatTextView : AppCompatTextView {
+class FloatTextView : AppCompatTextView, View.OnClickListener {
     constructor(context: Context) : super(context) {}
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {}
     constructor(context: Context, attributeSet: AttributeSet, defStyleAttr: Int)
@@ -24,8 +26,10 @@ class FloatTextView : AppCompatTextView {
     private var needAttach = false
 
     init {
+        isClickable = true
+        setOnClickListener(this)
         //减去虚拟按键的高度
-        screenHeight -= DeviceUtils.instance.getVirtualBarHeight(context)
+//        screenHeight -= DeviceUtils.instance.getVirtualBarHeight(context)
     }
 
     //记录最后的位置
@@ -35,6 +39,11 @@ class FloatTextView : AppCompatTextView {
     //设置是否可以依附
     fun setAttachAble(attach: Boolean) {
         needAttach = attach
+    }
+
+    override fun onClick(v: View?) {
+        LogUtils.instance.getLogPrint("点击了可拖动文本")
+        FloatWindowApplication.startTargetActivity()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -76,11 +85,11 @@ class FloatTextView : AppCompatTextView {
 
             }
             MotionEvent.ACTION_UP -> {
+                performClick()
                 if (!needAttach) {
                     //此处重新设置LayoutParams,防止当父布局重新刷新时导致控件回归原处
                     var lp = LinearLayout.LayoutParams(width, height)
                     lp.setMargins(left, top, 0, 0)
-                    LogUtils.instance.getLogPrint("$left   $top   $right   $bottom")
                     layoutParams = lp
                 } else {
                     var centerX = screenWidth / 2
@@ -103,12 +112,12 @@ class FloatTextView : AppCompatTextView {
      */
     private fun attachWindowXLine(left: Boolean, duration: Long = 500) {
         var animate = animate()
-                .setInterpolator(BounceInterpolator())
-                .setDuration(duration)
+            .setInterpolator(BounceInterpolator())
+            .setDuration(duration)
         if (left)
             animate.x(0F).start()
         else
-            animate.x((screenWidth-width).toFloat()).start()
+            animate.x((screenWidth - width).toFloat()).start()
     }
 
     /**
@@ -118,8 +127,8 @@ class FloatTextView : AppCompatTextView {
      */
     private fun attachWindowYLine(top: Boolean, duration: Long) {
         var animate = animate()
-                .setInterpolator(BounceInterpolator())
-                .setDuration(duration)
+            .setInterpolator(BounceInterpolator())
+            .setDuration(duration)
         if (top)
             animate.y(0F).start()
         else

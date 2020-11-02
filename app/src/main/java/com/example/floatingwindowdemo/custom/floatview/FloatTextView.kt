@@ -2,10 +2,13 @@ package com.example.floatingwindowdemo.custom.floatview
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
+import com.example.floatingwindowdemo.DeviceUtils
 import com.example.floatingwindowdemo.LogUtils
+
 
 class FloatTextView : AppCompatTextView {
     constructor(context: Context) : super(context) {}
@@ -14,8 +17,13 @@ class FloatTextView : AppCompatTextView {
             : super(context, attributeSet, defStyleAttr) {
     }
 
-    init {
+    private var displayMetrics: DisplayMetrics = resources.displayMetrics
+    private var screenWidth = displayMetrics.widthPixels
+    private var screenHeight = displayMetrics.heightPixels
 
+    init {
+        //减去虚拟按键的高度
+        screenHeight -= DeviceUtils.instance.getVirtualBarHeight(context)
     }
 
     //记录最后的位置
@@ -38,6 +46,22 @@ class FloatTextView : AppCompatTextView {
                 var r = right + dx
                 var b = bottom + dy
                 var t = top + dy
+                if (l < 0) {
+                    l = 0
+                    r = width
+                }
+                if (t < 0) {
+                    t = 0
+                    b = height
+                }
+                if (r > screenWidth) {
+                    r = screenWidth
+                    l = screenWidth - width
+                }
+                if (b > screenHeight) {
+                    b = screenHeight
+                    t = screenHeight - height
+                }
                 //利用layout方法重新更新view的位置
                 layout(l, t, r, b)
                 lastX = event.rawX.toInt()

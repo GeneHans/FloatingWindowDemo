@@ -49,7 +49,7 @@ class FloatWindow : LinearLayout,View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        LogUtils.instance.getLogPrint("点击了可拖动控件")
+        LogUtils.instance.getLogPrint("点击了可拖动控件"+v?.context?.packageName)
         FloatWindowApplication.startTargetActivity()
     }
 

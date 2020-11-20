@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         var floatWindow: FloatWindow = findViewById(R.id.float_window1)
         var btnService: Button = findViewById(R.id.btn_service)
         requestPermission()
+        startService()
         btnService.setOnClickListener {
             startService()
         }

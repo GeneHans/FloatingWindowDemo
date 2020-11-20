@@ -42,6 +42,7 @@ class TestService : Service() {
 
     private fun showFloatingWindow() {
 //        MainActivity.isStart = true
+        FloatWindowApplication.startTargetActivity()
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             LogUtils.instance.getLogPrint(Settings.canDrawOverlays(this).toString())
         }
@@ -73,34 +74,6 @@ class TestService : Service() {
         else{
             LogUtils.instance.getLogPrint("未打开权限")
         }
-    }
-
-    private fun addView(context: Context) {
-        if (windowManager == null) {
-            windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager?
-        }
-        var view: FloatWindow? = null
-        var layoutParam = WindowManager.LayoutParams()
-        //设置宽和高
-        layoutParam.height = WindowManager.LayoutParams.WRAP_CONTENT
-        layoutParam.width = WindowManager.LayoutParams.WRAP_CONTENT
-        //设置初始位置在左上角
-        layoutParam.format = PixelFormat.TRANSPARENT
-        layoutParam.gravity = Gravity.START or Gravity.TOP
-        layoutParam.verticalMargin = 0.2f
-        // FLAG_LAYOUT_IN_SCREEN：将window放置在整个屏幕之内,无视其他的装饰(比如状态栏)； FLAG_NOT_TOUCH_MODAL：不阻塞事件传递到后面的窗口
-        layoutParam.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        //设置悬浮窗属性
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParam.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            // 设置窗体显示类型(TYPE_TOAST:与toast一个级别)
-            layoutParam.type = WindowManager.LayoutParams.TYPE_TOAST
-        }
-        if (view == null)
-            view = FloatWindow(context)
-        windowManager?.addView(view, layoutParam)
     }
 
     /**

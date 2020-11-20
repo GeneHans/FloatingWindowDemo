@@ -22,7 +22,7 @@ class FloatWindowApplication : Application() {
         mContext = this
         if (flowGroup == null)
             flowGroup = FloatWindowHelper()
-        showWindow()
+//        showWindow()
         startService()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {

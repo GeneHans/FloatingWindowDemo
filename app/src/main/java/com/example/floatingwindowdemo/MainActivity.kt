@@ -1,33 +1,46 @@
 package com.example.floatingwindowdemo
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.floatingwindowdemo.custom.floatview.FloatTextView
 import com.example.floatingwindowdemo.custom.floatview.FloatWindow
+import com.example.floatingwindowdemo.util.FileUtils
+import com.example.floatingwindowdemo.util.LogUtils
+import com.example.floatingwindowdemo.util.QRCodeBitmapUtils
+import java.util.logging.Logger
 
 
 class MainActivity : AppCompatActivity() {
 
     private var isDebug = true
     private var isStart = false
+    private var imgQRCode: ImageView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         var floatTextView: FloatTextView = findViewById(R.id.float_text1)
         var floatWindow: FloatWindow = findViewById(R.id.float_window1)
         var btnService: Button = findViewById(R.id.btn_service)
+        imgQRCode = findViewById(R.id.img_qr_code)
         requestPermission()
-        startService()
+//        startService()
         btnService.setOnClickListener {
-            startService()
+//            startService()
+            createQrCode()
         }
         floatTextView.setAttachAble(false)
         floatWindow.setAttachAble(false)
@@ -69,6 +82,27 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show()
                 if (!isStart) startService(Intent(this@MainActivity, TestService::class.java))
             }
+        }
+    }
+
+    private fun createQrCode() {
+        var bitmap = QRCodeBitmapUtils.instance.createQRCodeBitmap("this is a test", 300, 300,
+                "UTF-8", "L", "2", Color.BLACK, Color.WHITE)
+        var logoBitmap: Bitmap? = null
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            var vectorDrawable = ContextCompat.getDrawable(this, R.drawable.ic_launcher_background)
+            if (vectorDrawable != null) {
+                logoBitmap = Bitmap.createBitmap(vectorDrawable.intrinsicWidth,
+                        vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+                var canvas = Canvas(logoBitmap)
+                vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
+                vectorDrawable.draw(canvas)
+            }
+        } else {
+            logoBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_background);
+        }
+        if (bitmap != null) {
+            imgQRCode?.setImageBitmap(QRCodeBitmapUtils.instance.addLogo(bitmap, logoBitmap, 0.2f))
         }
     }
 }

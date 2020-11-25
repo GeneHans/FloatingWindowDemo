@@ -19,9 +19,9 @@ import androidx.core.content.ContextCompat
 import com.example.floatingwindowdemo.custom.floatview.FloatTextView
 import com.example.floatingwindowdemo.custom.floatview.FloatWindow
 import com.example.floatingwindowdemo.util.FileUtils
-import com.example.floatingwindowdemo.util.LogUtils
+import com.example.floatingwindowdemo.util.ImageUtils
 import com.example.floatingwindowdemo.util.QRCodeBitmapUtils
-import java.util.logging.Logger
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private var isDebug = true
     private var isStart = false
     private var imgQRCode: ImageView? = null
+    private var fileName = "testQrCode1.png"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,11 +43,18 @@ class MainActivity : AppCompatActivity() {
 //            startService()
             createQrCode()
         }
+        imgQRCode?.setOnClickListener {
+            shareQrCode()
+        }
         floatTextView.setAttachAble(false)
         floatWindow.setAttachAble(false)
         if (isDebug) {
 //            finish()
         }
+    }
+
+    private fun shareQrCode() {
+        ImageUtils.instance.shareImg(FileUtils.instance.getAppDir()+QRCodeBitmapUtils.QR_CODE +File.separator+ fileName, this)
     }
 
     /**
@@ -102,7 +110,9 @@ class MainActivity : AppCompatActivity() {
             logoBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_background);
         }
         if (bitmap != null) {
-            imgQRCode?.setImageBitmap(QRCodeBitmapUtils.instance.addLogo(bitmap, logoBitmap, 0.2f))
+            var qrCodeBitmap = QRCodeBitmapUtils.instance.addLogo(bitmap, logoBitmap, 0.2f)
+            QRCodeBitmapUtils.instance.saveBitmapToFile(qrCodeBitmap, fileName, this)
+            imgQRCode?.setImageBitmap(qrCodeBitmap)
         }
     }
 }

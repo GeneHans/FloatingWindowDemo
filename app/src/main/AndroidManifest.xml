@@ -4,6 +4,7 @@
     package="com.example.floatingwindowdemo">
 
     <application
+        android:requestLegacyExternalStorage="true"
         android:name=".FloatWindowApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,6 +23,8 @@
 
         <service android:name=".TestService" />
     </application>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />

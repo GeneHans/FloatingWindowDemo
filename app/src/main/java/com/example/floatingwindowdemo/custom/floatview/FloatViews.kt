@@ -3,9 +3,7 @@ package com.example.floatingwindowdemo.custom.floatview
 import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
 import android.view.animation.BounceInterpolator
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -15,7 +13,7 @@ import com.example.floatingwindowdemo.R
 import com.example.floatingwindowdemo.util.LogUtils
 
 
-class FloatWindow : LinearLayout,View.OnClickListener {
+class FloatViews : LinearLayout, View.OnClickListener {
     constructor(context: Context) : super(context) {}
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {}
     constructor(context: Context, attributeSet: AttributeSet, defStyleAttr: Int) :
@@ -35,7 +33,7 @@ class FloatWindow : LinearLayout,View.OnClickListener {
     private var needAttach = false
 
     init {
-        View.inflate(context, R.layout.float_window_layout, this)
+        View.inflate(context, R.layout.float_views_layout, this)
         image = findViewById(R.id.img_float_window)
         text = findViewById(R.id.text_float_window)
         setOnClickListener(this)
@@ -49,73 +47,8 @@ class FloatWindow : LinearLayout,View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        LogUtils.instance.getLogPrint("点击了可拖动控件"+v?.context?.packageName)
+        LogUtils.instance.getLogPrint("点击了可拖动控件" + v?.context?.packageName)
         FloatWindowApplication.startTargetActivity()
-    }
-    private var downTime = 0L
-    private var isDraged = false
-
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        var action = ev?.action ?: return super.onInterceptTouchEvent(ev)
-        when (action) {
-            MotionEvent.ACTION_DOWN -> {
-                lastX = ev.rawX.toInt()
-                lastY = ev.rawY.toInt()
-                downTime = System.currentTimeMillis()
-                isDraged = false
-            }
-            MotionEvent.ACTION_MOVE -> {
-                var dx = ev.rawX.toInt() - lastX
-                var dy = ev.rawY.toInt() - lastY
-                var l = left + dx
-                var r = right + dx
-                var t = top + dy
-                var b = bottom + dy
-                //当滑动出边界时需要重新设置位置
-                if (l < 0) {
-                    l = 0
-                    r = width
-                }
-                if (t < 0) {
-                    t = 0
-                    b = height
-                }
-                if (r > screenWidth) {
-                    r = screenWidth
-                    l = screenWidth - width
-                }
-                if (b > screenHeight) {
-                    b = screenHeight
-                    t = screenHeight - height
-                }
-                layout(l, t, r, b)
-                lastX = ev.rawX.toInt()
-                lastY = ev.rawY.toInt()
-            }
-            MotionEvent.ACTION_UP -> {
-                if(System.currentTimeMillis() - downTime < ViewConfiguration.getTapTimeout()){
-                    performClick()
-                    isDraged = false
-                }
-                else {
-                    isDraged = true
-                    if (!needAttach) {
-                        var lp = LinearLayout.LayoutParams(width, height)
-                        lp.setMargins(left, top, right, bottom)
-                        layoutParams = lp
-                    } else {
-                        var centerX = screenWidth / 2
-                        var centerY = screenHeight / 2
-                        if (lastX < centerX) {
-                            attachWindowXLine(true)
-                        } else {
-                            attachWindowXLine(false)
-                        }
-                    }
-                }
-            }
-        }
-        return isDraged
     }
 
     /**
@@ -123,7 +56,7 @@ class FloatWindow : LinearLayout,View.OnClickListener {
      * @param left:是由依附左面
      * @param duration:动画持续时长
      */
-    private fun attachWindowXLine(left: Boolean, duration: Long = 500) {
+    public fun attachWindowXLine(left: Boolean, duration: Long = 500) {
         var animate = animate()
                 .setInterpolator(BounceInterpolator())
                 .setDuration(duration)
@@ -138,7 +71,7 @@ class FloatWindow : LinearLayout,View.OnClickListener {
      * @param top:是否依附顶部
      * @param duration:动画持续时长
      */
-    private fun attachWindowYLine(top: Boolean, duration: Long) {
+    public fun attachWindowYLine(top: Boolean, duration: Long) {
         var animate = animate()
                 .setInterpolator(BounceInterpolator())
                 .setDuration(duration)

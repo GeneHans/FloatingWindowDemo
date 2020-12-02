@@ -24,15 +24,15 @@ class MainActivity : AppCompatActivity() {
         var floatTextView: FloatTextView = findViewById(R.id.float_text1)
         var floatWindow: FloatWindow = findViewById(R.id.float_window1)
         var btnService: Button = findViewById(R.id.btn_service)
-        requestPermission()
-        startService()
+//        requestPermission()
+//        startService()
         btnService.setOnClickListener {
             startService()
-        }
-        floatTextView.setAttachAble(false)
-        floatWindow.setAttachAble(false)
-        if (isDebug) {
+            floatTextView.setAttachAble(false)
+            floatWindow.setAttachAble(false)
+            if (isDebug) {
 //            finish()
+            }
         }
     }
 

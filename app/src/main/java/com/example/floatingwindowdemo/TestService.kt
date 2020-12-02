@@ -9,12 +9,9 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
-import android.util.Log
-import android.view.Gravity
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import com.example.floatingwindowdemo.custom.floatview.FloatTextView
-import com.example.floatingwindowdemo.custom.floatview.FloatWindow
 import com.example.floatingwindowdemo.util.LogUtils
 
 class TestService : Service() {

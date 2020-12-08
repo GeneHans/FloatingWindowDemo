@@ -39,7 +39,6 @@ class TestService : Service() {
 
     private fun showFloatingWindow() {
 //        MainActivity.isStart = true
-        FloatWindowApplication.startTargetActivity()
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             LogUtils.instance.getLogPrint(Settings.canDrawOverlays(this).toString())
         }

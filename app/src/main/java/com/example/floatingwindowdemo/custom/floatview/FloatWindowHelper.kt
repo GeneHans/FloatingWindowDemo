@@ -83,11 +83,6 @@ class FloatWindowHelper {
                         } else {
                             isDraged = true
                         }
-                        view?.attachWindowXLine(true)
-                        var animate = animate(v)
-                                .setInterpolator(BounceInterpolator())
-                                .setDuration(500)
-                        animate.x(v.width.toFloat()).start()
                     }
                 }
                 return isDraged

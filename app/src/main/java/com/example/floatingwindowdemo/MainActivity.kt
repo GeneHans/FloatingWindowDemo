@@ -1,5 +1,6 @@
 package com.example.floatingwindowdemo
 
+import android.Manifest
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,6 +9,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
@@ -15,12 +17,14 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.floatingwindowdemo.custom.floatview.FloatTextView
 import com.example.floatingwindowdemo.custom.floatview.FloatWindow
 import com.example.floatingwindowdemo.util.FileUtils
-import com.example.floatingwindowdemo.util.ImageUtils
+import com.example.floatingwindowdemo.util.PermissionUtils
 import com.example.floatingwindowdemo.util.QRCodeBitmapUtils
+import com.example.floatingwindowdemo.util.ShareUtils
 import java.io.File
 
 
@@ -54,7 +58,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareQrCode() {
-        ImageUtils.instance.shareImg(FileUtils.instance.getAppDir()+QRCodeBitmapUtils.QR_CODE +File.separator+ fileName, this)
+        ShareUtils.instance.shareImg(FileUtils.instance.getAppDir() + QRCodeBitmapUtils.QR_CODE + File.separator + fileName, this)
+    }
+
+    private fun openCamera() {
+        if (PermissionUtils.instance.checkPermission(this, Manifest.permission.CAMERA)) {
+            var imageUri = ""
+            val intent = Intent("android.media.action.IMAGE_CAPTURE")
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+            startActivityForResult(intent, PermissionUtils.instance.permissionCameraCode)
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), PermissionUtils.instance.permissionCameraCode)
+        }
     }
 
     /**

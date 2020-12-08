@@ -4,13 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import com.example.floatingwindowdemo.custom.floatview.FloatWindowHelper
-import com.example.floatingwindowdemo.util.LogUtils
 
 class FloatWindowApplication : Application() {
 
@@ -22,8 +17,6 @@ class FloatWindowApplication : Application() {
         mContext = this
         if (flowGroup == null)
             flowGroup = FloatWindowHelper()
-//        showWindow()
-        startService()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {
 
@@ -57,16 +50,6 @@ class FloatWindowApplication : Application() {
         })
     }
 
-    private fun startService() {
-        Log.d("Message", "启动Service")
-        var intent = Intent(applicationContext, TestService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-    }
-
     fun showWindow() {
         flowGroup?.showView(this)
     }
@@ -76,7 +59,8 @@ class FloatWindowApplication : Application() {
     }
 
     companion object {
-        var mContext:Context? = null
+        val instance by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) { FloatWindowApplication() }
+        var mContext: Context? = null
         fun startTargetActivity() {
             if (mContext != null) {
                 var intent = Intent()

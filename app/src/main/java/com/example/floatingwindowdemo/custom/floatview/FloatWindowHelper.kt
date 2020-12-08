@@ -4,9 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.*
-import android.view.animation.BounceInterpolator
-import androidx.core.view.ViewCompat.animate
+import com.example.floatingwindowdemo.FloatWindowApplication
+import com.example.floatingwindowdemo.util.LogUtils
 
 class FloatWindowHelper {
     private var windowManager: WindowManager? = null
@@ -28,6 +29,10 @@ class FloatWindowHelper {
         //设置初始位置在左上角
         layoutParam.format = PixelFormat.TRANSPARENT
         layoutParam.gravity = Gravity.START or Gravity.TOP
+
+        var displayMetrics: DisplayMetrics? = FloatWindowApplication.mContext?.resources?.displayMetrics
+        var screenWidth = displayMetrics?.widthPixels ?: 0
+        var screenHeight = displayMetrics?.heightPixels ?: 0
 //        layoutParam.verticalMargin = 0.2f
         // FLAG_LAYOUT_IN_SCREEN：将window放置在整个屏幕之内,无视其他的装饰(比如状态栏)； FLAG_NOT_TOUCH_MODAL：不阻塞事件传递到后面的窗口
         layoutParam.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
@@ -42,6 +47,7 @@ class FloatWindowHelper {
         if (view == null)
             view = FloatViews(context)
         windowManager?.addView(view, layoutParam)
+        view?.needAttach = true
         view?.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, ev: MotionEvent?): Boolean {
                 if (v == null || ev == null)
@@ -82,6 +88,15 @@ class FloatWindowHelper {
                             isDraged = false
                         } else {
                             isDraged = true
+                        }
+                        LogUtils.instance.getLogPrint(screenHeight.toString())
+                        if ((v as FloatViews).needAttach && screenWidth != 0) {
+                            if (lastX > screenWidth / 2) {
+                                layoutParam.x = screenWidth - v.width
+                            } else {
+                                layoutParam.x = 0
+                            }
+                            windowManager?.updateViewLayout(v, layoutParam)
                         }
                     }
                 }

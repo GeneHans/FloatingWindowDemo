@@ -1,6 +1,7 @@
 package com.example.floatingwindowdemo
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -21,17 +21,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.floatingwindowdemo.custom.floatview.FloatTextView
 import com.example.floatingwindowdemo.custom.floatview.FloatWindow
-import com.example.floatingwindowdemo.util.FileUtils
-import com.example.floatingwindowdemo.util.PermissionUtils
-import com.example.floatingwindowdemo.util.QRCodeBitmapUtils
-import com.example.floatingwindowdemo.util.ShareUtils
+import com.example.floatingwindowdemo.util.*
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
 
-    private var isDebug = true
-    private var isStart = false
     private var imgQRCode: ImageView? = null
     private var fileName = "testQrCode1.png"
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,20 +36,14 @@ class MainActivity : AppCompatActivity() {
         var floatWindow: FloatWindow = findViewById(R.id.float_window1)
         var btnService: Button = findViewById(R.id.btn_service)
         imgQRCode = findViewById(R.id.img_qr_code)
-        requestPermission()
-//        startService()
         btnService.setOnClickListener {
-//            startService()
-            createQrCode()
+            openImageUtils()
         }
         imgQRCode?.setOnClickListener {
             shareQrCode()
         }
         floatTextView.setAttachAble(false)
         floatWindow.setAttachAble(false)
-        if (isDebug) {
-//            finish()
-        }
     }
 
     private fun shareQrCode() {
@@ -63,13 +52,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun openCamera() {
         if (PermissionUtils.instance.checkPermission(this, Manifest.permission.CAMERA)) {
-            var imageUri = ""
-            val intent = Intent("android.media.action.IMAGE_CAPTURE")
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            startActivityForResult(intent, PermissionUtils.instance.permissionCameraCode)
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(intent, IntentUtil.instance.requestCameraPermissionCode)
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), PermissionUtils.instance.permissionCameraCode)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), IntentUtil.instance.requestCameraPermissionCode)
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            IntentUtil.instance.requestCameraPermissionCode ->{
+                openCamera()
+            }
+            else ->{
+
+            }
+        }
+    }
+
+    private fun openImageUtils() {
+        val intent: Intent
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "image/*"
+        } else {
+            intent = Intent(
+                    Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        }
+        startActivityForResult(intent, IntentUtil.instance.openImageGalleryCode)
     }
 
     /**
@@ -85,25 +97,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startService() {
-        Log.d("Message", "启动Service")
-        var intent = Intent(this, TestService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-            finish()
-        } else {
-            startService(intent)
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, @Nullable data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "授权失败", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show()
-                if (!isStart) startService(Intent(this@MainActivity, TestService::class.java))
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                0 -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                        Toast.makeText(this, "授权失败", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                IntentUtil.instance.requestCameraPermissionCode -> {
+                    var extra = data?.extras
+                    var photo = extra?.get("data") as Bitmap?
+                    if (photo != null) {
+                        var path = FileUtils.instance.getAppDir()
+                        if (path != null) {
+                            ImageUtils.instance.saveBitmapToFile(photo, System.currentTimeMillis().toString() + ".png",
+                                    "TestImg", this)
+                        }
+                        imgQRCode?.setImageBitmap(photo)
+                    }
+                }
+                IntentUtil.instance.openImageGalleryCode -> {
+                    var uri = data?.data
+                    if (data != null && uri != null) {
+                        var imgPath = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                            ImageUtils.instance.handleImageBeforeKitKat(data, this)
+                        } else {
+                            ImageUtils.instance.handleImageOnKitKat(data, this)
+                        }
+                        displayImage(imgPath)
+                    }
+                }
+                else -> {
+
+                }
             }
         }
     }
@@ -130,4 +160,13 @@ class MainActivity : AppCompatActivity() {
             imgQRCode?.setImageBitmap(qrCodeBitmap)
         }
     }
+
+    private fun displayImage(imgPath: String?) {
+        LogUtils.instance.getLogPrint(imgPath ?: "没有获取到路径")
+        if (imgPath != null && FileUtils.instance.isFileExist(imgPath)) {
+            var bitmap = BitmapFactory.decodeFile(imgPath)
+            imgQRCode?.setImageBitmap(bitmap)
+        }
+    }
+
 }

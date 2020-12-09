@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 
 class PermissionUtils {
-    val permissionCameraCode = 1
 
     fun checkPermission(context: Context, permissionName: String): Boolean {
         var packageManager = context.packageManager
